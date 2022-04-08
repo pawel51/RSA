@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
@@ -14,6 +15,8 @@ namespace RSA
         #region COMMANDS INVOKED BY VIEWMODEL
         public void GenerateAutoPQCommand(RsaModel model)
         {
+            model.p = -1;
+            model.q = -1;
             Generate_p_and_q(model);
         }
         internal bool GenerateAutoPQCommandCanExecute(RsaModel rsa)
@@ -21,21 +24,35 @@ namespace RSA
             return true;
         }
 
-        public void CalculateFullMoldelCommand(RsaModel model)
+        public void CalculateFullMoldelCommand(RsaModel model, ObservableCollection<TableModel> tableData)
         {
             model.n = model.p * model.q;
             model.fiOdN = (model.p - 1) * (model.q - 1);
             BigInteger[] ePossibles = Find_e(model.fiOdN); //możliwe e 
-            BigInteger e = -1; // private key d
-            BigInteger d = -1; // private key d
+            model.e = -1; // private key d
+            model.d = -1; // private key d
 
             Generate_e_and_d(model, ePossibles);
-            if (d == -1 || e == -1)
+            if (model.d == -1 || model.e == -1)
             {
-                MessageBox.Show("Cannot generate e or d");
+                MessageBox.Show("Cannot generate e or d. Try setting P and Q first.");
                 return;
             }
+
+            DisplayToTable(model, tableData);
+
         }
+
+        private void DisplayToTable(RsaModel model, ObservableCollection<TableModel> tableData)
+        {
+            tableData.Clear();
+            tableData.Add(new TableModel("n", "(p * q)", model.n.ToString()));
+            tableData.Add(new TableModel("fi(n)", "(p - 1) * (q - 1)", model.fiOdN.ToString()));
+            tableData.Add(new TableModel("e", "GCD (fi(n), e) == 1 && e > 2", model.e.ToString()));
+            tableData.Add(new TableModel("k", "(k * fi(n) + 1) % e == 0", model.k.ToString()));
+            tableData.Add(new TableModel("d", "(k * fi(n) + 1) / e", model.d.ToString()));
+        }
+
         internal bool CalculateFullMoldelCommandCanExecute(RsaModel model)
         {
             return true;
@@ -94,7 +111,7 @@ namespace RSA
 
         private BigInteger[] ConvertStringToBigInteger(string str)
         {
-            string[] chars = str.Split('%');
+            string[] chars = str.Split(',');
             BigInteger[] array = new BigInteger[chars.Length];
             for (int i = 0; i < chars.Length; i++)
             {
@@ -108,8 +125,9 @@ namespace RSA
             string encryptedStr = "";
             for (int i = 0; i < encrypted.Length; i++)
             {
-                encryptedStr += encrypted[i].ToString() + "%";
+                encryptedStr += encrypted[i].ToString() + ",";
             }
+            encryptedStr = encryptedStr.Substring(0, encryptedStr.Length - 1);
             return encryptedStr;
         }
 
@@ -206,7 +224,7 @@ namespace RSA
             for (int i = 0; i < ePossibles.Length; i++)
             {
                 // dobierz k tak aby k*fi(n) + 1 było podzielne przez e
-                for (int k = 0; k < 10; k++) // k może być różne i nie wpływa na trudność złamania szyfru 
+                for (int k = 0; k < 100; k++) // k może być różne i nie wpływa na trudność złamania szyfru 
                 {
                     if ((k * m.fiOdN + 1) % ePossibles[i] == 0)
                     {
@@ -247,14 +265,8 @@ namespace RSA
         {
             BigInteger[] possiblesE = new BigInteger[20];
             int iNum = 0;
-
-            if (fiOdN % 3 == 0) possiblesE[iNum++] = 3;
-            if (fiOdN % 5 == 0) possiblesE[iNum++] = 5;
-            if (fiOdN % 7 == 0) possiblesE[iNum++] = 7;
-            if (fiOdN % 11 == 0) possiblesE[iNum++] = 11;
-            if (fiOdN % 13 == 0) possiblesE[iNum++] = 13;
-            for (BigInteger i = new BigInteger(17);
-                            iNum < 20;
+            for (BigInteger i = new BigInteger(3);
+                            iNum < 20 && i < fiOdN;
                             i = i + 2)
             {
                 if (GCD(fiOdN, i) == 1)

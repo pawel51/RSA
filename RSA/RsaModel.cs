@@ -11,7 +11,7 @@ namespace RSA
     class RsaModel : INotifyPropertyChanged
     {
         #region PROPS
-        private BigInteger _p;
+        private BigInteger _p = 0;
 
         public BigInteger p
         {
@@ -19,7 +19,7 @@ namespace RSA
             set { _p = value; OnPropertyChanged(nameof(p)); }
         }
 
-        private BigInteger _q;
+        private BigInteger _q = 0;
 
         public BigInteger q
         {
@@ -27,7 +27,7 @@ namespace RSA
             set { _q = value; OnPropertyChanged(nameof(q)); }
         }
 
-        private BigInteger _e;
+        private BigInteger _e = 0;
 
         public BigInteger e
         {
@@ -35,7 +35,7 @@ namespace RSA
             set { _e = value; OnPropertyChanged(nameof(e)); }
         }
 
-        private BigInteger _d;
+        private BigInteger _d = 0;
 
         public BigInteger d
         {
@@ -43,7 +43,7 @@ namespace RSA
             set { _d = value; OnPropertyChanged(nameof(d)); }
         }
 
-        private BigInteger _k;
+        private BigInteger _k = 0;
 
         public BigInteger k
         {
@@ -51,7 +51,7 @@ namespace RSA
             set { _k = value; OnPropertyChanged(nameof(k)); }
         }
 
-        private BigInteger _fiOdN;
+        private BigInteger _fiOdN = 0;
 
         public BigInteger fiOdN
         {
@@ -59,7 +59,7 @@ namespace RSA
             set { _fiOdN = value; OnPropertyChanged(nameof(fiOdN)); }
         }
 
-        private BigInteger _n;
+        private BigInteger _n = 0;
         public BigInteger n
         {
             get { return _n; }
@@ -74,7 +74,7 @@ namespace RSA
             set { _size = value; OnPropertyChanged(nameof(size)); }
         }
 
-        private string _encryptedStr;
+        private string _encryptedStr = "";
 
         public string EncryptedStr
         {
@@ -82,7 +82,7 @@ namespace RSA
             set { _encryptedStr = value; OnPropertyChanged(nameof(EncryptedStr)); }
         }
 
-        private string decryptedStr;
+        private string decryptedStr = "";
 
         public string DecryptedStr
         {
@@ -105,7 +105,7 @@ namespace RSA
             for (int i = 2; i < 1000; i++)
             {
                 int sum = 0;
-                for (int j = 2; j < i; j++)
+                for (int j = 2; j < i / 2; j++)
                 {
                     if (i % j == 0)
                     {

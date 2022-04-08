@@ -5,10 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RSA"
         mc:Ignorable="d"
-        Title="MainWindow" Height="650" Width="1200">
+        Title="MainWindow" Width="1000" Height="520">
+    <Window.Resources>
+        <local:BigIntegerToStringConverter x:Key="BigIntegerToStringConverter"/>
+        <local:StringToAsciiConverter x:Key="StringToAsciiConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="450"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
@@ -19,12 +23,16 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
-                <Button Content="Auto" Width="80" Height="22" VerticalAlignment="Top" Margin="10"/>
+                <Button Command="{Binding GenerateAutoPQCommand}" Content="Auto" Width="80" Height="22" VerticalAlignment="Top" Margin="10"/>
                 <StackPanel>
-                    <TextBlock Text="Bit size"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Bit size"/>
+                        <TextBlock Text="{Binding Rsa.size}" Margin="10,0"/>
+                    </StackPanel>
+
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="8"/>
-                        <Slider Width="200" Margin="5,0" Minimum="8" Maximum="1024" TickFrequency="8" IsSnapToTickEnabled="True"/>
+                        <Slider Width="200" Margin="5,0" Minimum="8" Maximum="1024" TickFrequency="8" IsSnapToTickEnabled="True" Value="{Binding Rsa.size}"/>
                         <TextBlock Text="1024"/>
                     </StackPanel>
                 </StackPanel>
@@ -33,18 +41,104 @@
             <StackPanel Grid.Row="1">
                 <StackPanel Orientation="Horizontal" Margin="10">
                     <TextBlock Text="P" Margin="5,0" Width="14"/>
-                    <TextBox Text="{Binding Rsa.p}" Width="400" Margin="5,0"/>
+                    <TextBox Text="{Binding Rsa.p, Converter={StaticResource BigIntegerToStringConverter}}" Width="400" Margin="5,0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="10">
                     <TextBlock Text="Q" Margin="5,0" Width="14"/>
-                    <TextBox Text="{Binding Rsa.q}" Width="400" Margin="5,0" />
+                    <TextBox Text="{Binding Rsa.q, Converter={StaticResource BigIntegerToStringConverter}}" Width="400" Margin="5,0" />
                 </StackPanel>
-                <Button Content="Calculate" Width="80" Height="22" HorizontalAlignment="Left" Margin="40,0"/>
+                <Button Command="{Binding CalculateFullMoldelCommand}" Content="Calculate" Width="80" Height="22" HorizontalAlignment="Left" Margin="40,0"/>
             </StackPanel>
-                
+
+            <DataGrid Grid.Row="2" Margin="10" ItemsSource="{Binding TableData}" Height="340" VerticalAlignment="Top" >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Variable" Binding="{Binding Variable}"/>
+                    <DataGridTextColumn Header="Formula" Width="150" Binding="{Binding Formula}"/>
+                    <DataGridTextColumn Header="Value" Binding="{Binding Value}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
         </Grid>
         <Grid Grid.Column="1">
-                
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="200"/>
+                <RowDefinition Height="200"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal">
+                <GroupBox Header="Private Key" Margin="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="e" Margin="5,0" Width="14"/>
+                            <TextBlock Text="{Binding Rsa.e, Converter={StaticResource BigIntegerToStringConverter}}" Margin="5,0" Width="200"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="n" Margin="5,0" Width="14"/>
+                            <TextBlock Text="{Binding Rsa.n, Converter={StaticResource BigIntegerToStringConverter}}" Margin="5,0" Width="200"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Header="Public Key" Margin="10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="d" Margin="5,0" Width="14"/>
+                            <TextBlock Text="{Binding Rsa.d, Converter={StaticResource BigIntegerToStringConverter}}" Margin="5,0" Width="200"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="n" Margin="5,0" Width="14"/>
+                            <TextBlock Text="{Binding Rsa.n, Converter={StaticResource BigIntegerToStringConverter}}" Margin="5,0" Width="200"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+            <GroupBox Header="Encryption" Grid.Row="1" Margin="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Text to Encrypt" Grid.Row="0" Grid.Column="0" Margin="5"/>
+                    <TextBlock Text="Text to Encrypt (ASCII)" Grid.Row="0" Grid.Column="1" Margin="5"/>
+                    <TextBlock Text="Encrypted Message (ASCII)" Grid.Row="0" Grid.Column="2" Margin="5"/>
+
+                    <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding MessageToEncrypt, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,0,5" TextWrapping="Wrap" HorizontalAlignment="Left" Width="163"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding MessageToEncrypt, Converter={StaticResource StringToAsciiConverter}, UpdateSourceTrigger=PropertyChanged}" Margin="5" TextWrapping="Wrap" IsEnabled="False"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" Margin="5" TextWrapping="Wrap" Text="{Binding Rsa.EncryptedStr}"/>
+
+                    <Button Command="{Binding EncryptRsaCommand}" Content="Encrypt" Grid.Column="0" Grid.Row="2" Width="80" Height="22" HorizontalAlignment="Left" Margin="5"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Decryption" Grid.Row="2" Margin="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition />
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="26*"/>
+                        <ColumnDefinition Width="147*"/>
+                        <ColumnDefinition Width="173*"/>
+                        <ColumnDefinition Width="173*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Encrypted Message (ASCII)" Grid.Row="0" Grid.Column="0" Margin="5,5,5,5" Grid.ColumnSpan="2"/>
+                    <TextBlock Text="Decrypted Message" Grid.Row="0" Grid.Column="2" Margin="5,5,5,5"/>
+                    <TextBlock Text="Message Decrypted to ASCII" Grid.Row="0" Grid.Column="3" Margin="5,5,5,5"/>
+
+                    <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding MessageToDecrypt}" Margin="5,5,5,5" TextWrapping="Wrap" Grid.ColumnSpan="2"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding Rsa.DecryptedStr}" Margin="5,5,5,5" TextWrapping="Wrap"/>
+                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Rsa.DecryptedStr, Converter={StaticResource StringToAsciiConverter}, UpdateSourceTrigger=PropertyChanged}" Margin="5,5,5,5" TextWrapping="Wrap" IsEnabled="False"/>
+
+                    <Button Command="{Binding DecryptRsaCommand}" Content="Decrypt" Grid.Column="0" Grid.Row="2" Width="80" Height="22" HorizontalAlignment="Left" Margin="5,5,0,5" Grid.ColumnSpan="2"/>
+                </Grid>
+            </GroupBox>
         </Grid>
     </Grid>
 </Window>

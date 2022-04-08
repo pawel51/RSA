@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -19,19 +20,30 @@ namespace RSA
             set { _rsa = value; OnPropertyChanged(nameof(Rsa)); }
         }
 
-        private string _messageToEncrypt;
+        private ObservableCollection<TableModel> _tableData = new ObservableCollection<TableModel>();
+
+        public ObservableCollection<TableModel> TableData
+        {
+            get { return _tableData; }
+            set { _tableData = value; OnPropertyChanged(nameof(TableData)); }
+        }
+
+
+        private string _messageToEncrypt = "";
         public string MessageToEncrypt
         {
             get { return _messageToEncrypt; }
             set { _messageToEncrypt = value; OnPropertyChanged(nameof(MessageToEncrypt)); }
         }
 
-        private string _messageToDecrypt;
+        private string _messageToDecrypt = "";
         public string MessageToDecrypt
         {
             get { return _messageToDecrypt; }
             set { _messageToDecrypt = value; OnPropertyChanged(nameof(MessageToDecrypt)); }
         }
+
+
 
         private RelayCommand _GenerateAutoPQCommand;
         public RelayCommand GenerateAutoPQCommand
@@ -51,7 +63,7 @@ namespace RSA
             get
             {
                 if (_CalculateFullMoldelCommand == null)
-                    _CalculateFullMoldelCommand = new RelayCommand(param => service.CalculateFullMoldelCommand(Rsa), param => service.CalculateFullMoldelCommandCanExecute(Rsa));
+                    _CalculateFullMoldelCommand = new RelayCommand(param => service.CalculateFullMoldelCommand(Rsa, TableData), param => service.CalculateFullMoldelCommandCanExecute(Rsa));
                 return _CalculateFullMoldelCommand;
             }
             set { _CalculateFullMoldelCommand = value; OnPropertyChanged(nameof(CalculateFullMoldelCommand)); }
