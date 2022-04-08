@@ -1,5 +1,5 @@
 # RSA in .NET Core 5.0 WPF
-![/RSA/RSA/Docs/screen1.PNG]
+![GUI](/RSA/Docs/screen1.PNG)
 
 
 ##  Specification
