@@ -144,7 +144,6 @@ namespace RSA
                 evenComponent /= 2; // shift left by one bit
                 maxDivisionByTwo += 1;
             }
-            //if (Math.Pow(2, maxDivisionByTwo) * evenComponent == candidate - 1)
 
             RandomNumberGenerator rng = RandomNumberGenerator.Create();
             byte[] bytes = new byte[candidate.ToByteArray().LongLength];
@@ -263,6 +262,7 @@ namespace RSA
 
         private static BigInteger[] Find_e(BigInteger fiOdN)
         {
+            // znajduje 20 możliwych e mniejszych od fi(n)
             BigInteger[] possiblesE = new BigInteger[20];
             int iNum = 0;
             for (BigInteger i = new BigInteger(3);
